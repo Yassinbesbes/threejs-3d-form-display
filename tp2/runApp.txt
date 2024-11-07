@@ -1,0 +1,5 @@
+## install the library three js uding this commande:
+npm install --save three
+##run the app
+npx vite 
+

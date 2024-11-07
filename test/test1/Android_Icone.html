@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mon premier programme three.js</title>
+    <script type="module">
+      import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.168.0/three.module.js";
+
+      // Scene setup
+      const scene = new THREE.Scene();
+      // Camera
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        10000
+      );
+      camera.position.z = 10;
+      camera.position.y = 5;
+
+      // Renderer
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Handle window resize for responsiveness
+      window.addEventListener("resize", () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      });
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 10, 7.5);
+      scene.add(directionalLight);
+
+      // Create a parent object for the snowman
+      const parent = new THREE.Object3D();
+      scene.add(parent);
+
+      // Snowman parts: body and head (spheres)
+      const material = new THREE.MeshBasicMaterial({ color: 0x7bd300 });
+
+      const bodyGeometry = new THREE.CylinderGeometry(2, 2, 3, 32);
+      const body = new THREE.Mesh(bodyGeometry, material);
+      body.position.set(0, 2.5, 0);
+      parent.add(body);
+
+      const geometryhead = new THREE.SphereGeometry(2, 32, 64, 0, 3.14);
+      const head = new THREE.Mesh(geometryhead, material);
+      head.position.set(0, 4.35, 0);
+      head.rotation.set(-1.57, 0, 0);
+      parent.add(head);
+
+      // top of the head
+      const tophead = new THREE.CapsuleGeometry(0.1, 1.6, 32, 8);
+      const one = new THREE.Mesh(tophead, material);
+      one.position.set(-1.2, 6, 0);
+      one.rotation.set(0, 0, 0.5);
+      parent.add(one);
+
+      const two = new THREE.Mesh(tophead, material);
+      two.position.set(1.2, 6, 0);
+      two.rotation.set(0, 0, -0.5);
+      parent.add(two);
+
+      // eyes
+      const eyematerial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+      const geometryeye = new THREE.SphereGeometry(0.15, 32, 64);
+      const eye1 = new THREE.Mesh(geometryeye, eyematerial);
+      eye1.position.set(-0.5, 5.3, 1.7);
+      parent.add(eye1);
+
+      const eye2 = new THREE.Mesh(geometryeye, eyematerial);
+      eye2.position.set(0.5, 5.3, 1.7);
+      parent.add(eye2);
+
+      // arms (cylinders)
+      const arm1 = new THREE.CapsuleGeometry(0.4, 2, 32, 8);
+      const carm1 = new THREE.Mesh(arm1, material);
+      carm1.position.set(2.5, 2.5, 0);
+      parent.add(carm1);
+
+      const arm2 = new THREE.CapsuleGeometry(0.4, 2, 32, 8);
+      const carm2 = new THREE.Mesh(arm1, material);
+      carm2.position.set(-2.5, 2.5, 0);
+      parent.add(carm2);
+
+      // legs
+      const leg1 = new THREE.CapsuleGeometry(0.4, 1, 32, 8);
+      const cleg1 = new THREE.Mesh(leg1, material);
+      cleg1.position.set(0.9, 0, 0);
+      parent.add(cleg1);
+
+      const leg2 = new THREE.CapsuleGeometry(0.4, 1, 32, 8);
+      const cleg2 = new THREE.Mesh(leg1, material);
+      cleg2.position.set(-0.9, 0, 0);
+      parent.add(cleg2);
+
+      function animate() {
+        requestAnimationFrame(animate);
+        parent.rotation.y += 0.01;
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    </script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body></body>
+</html>

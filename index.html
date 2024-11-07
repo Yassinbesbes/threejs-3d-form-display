@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js Forms in Table</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    td {
+      width: 100%;
+      height: 300px;
+      vertical-align: top;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Display Three.js Models in a Table</h1>
+
+  <table>
+    <tr>
+      <td><div id="form1"></div></td>
+      <td><div id="form2"></div></td>
+      <td><div id="form3"></div></td>
+    </tr>
+  </table>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+  <script>
+    // Function to initialize and render a model in a Three.js scene
+    function init3DModel(elementId, modelPath) {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(300, 300); // set canvas size (same as table cell size)
+      document.getElementById(elementId).appendChild(renderer.domElement);
+
+      // Set up lights
+      const light = new THREE.AmbientLight(0x404040); // Ambient light
+      scene.add(light);
+
+      // Load the 3D model
+      const loader = new THREE.GLTFLoader();
+      loader.load(modelPath, function (gltf) {
+        const model = gltf.scene;
+        scene.add(model);
+
+        camera.position.z = 5;
+
+        const animate = function () {
+          requestAnimationFrame(animate);
+          model.rotation.x += 0.01;
+          model.rotation.y += 0.01;
+          renderer.render(scene, camera);
+        };
+        animate();
+      }, undefined, function (error) {
+        console.error(error);
+      });
+    }
+
+    // Example: call function with paths to 3D models
+    init3DModel('form1', 'tp3/exercice1/model1.gltf');  // Path to model for form1
+    init3DModel('form2', 'tp3/tp_cours/model2.gltf');   // Path to model for form2
+    init3DModel('form3', 'tp3/tp_cours/model3.gltf');   // Path to model for form3
+  </script>
+
+</body>
+</html>

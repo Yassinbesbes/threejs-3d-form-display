@@ -1,0 +1,28 @@
+# Ignore node_modules folder
+node_modules/
+
+# Ignore build and dist directories
+build/
+dist/
+
+# Ignore all .log files
+*.log
+
+# Ignore IDE/editor specific files (e.g., VSCode, IntelliJ, etc.)
+.vscode/
+.idea/
+
+# Ignore environment files (e.g., for sensitive data)
+.env
+
+# Ignore specific files (e.g., sensitive API keys or credentials)
+secrets.json
+
+# Ignore MacOS and Windows system files
+.DS_Store
+Thumbs.db
+
+
+# Ignore specific directories
+tp3/exercice2/model1
+tp cours/

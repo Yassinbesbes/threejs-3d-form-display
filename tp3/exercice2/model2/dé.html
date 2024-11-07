@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="three.js"></script>
+    <script src="ThreeBSP.js"></script>
+
+    <title>Dé</title>
+  </head>
+  <body>
+    <script>
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(
+        10,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      renderer.shadowMap.enabled = true;
+      renderer.setClearColor(new THREE.Color(0x000000));
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      document.body.appendChild(renderer.domElement);
+
+      var alight = new THREE.AmbientLight(0xffffff, 1.0);
+      scene.add(alight);
+      var plight = new THREE.PointLight(0xccffcc);
+      plight.distance = 100;
+      plight.castShadow = true;
+      plight.position.set(1.5, 1.5, 0);
+      scene.add(plight);
+
+      renderer.shadowMap.enable = true;
+
+      var SphereGeometry = new THREE.SphereGeometry(0.08, 20, 20);
+      var Material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+
+      var CubeGeometry = new THREE.BoxGeometry();
+      var CubeMaterial = new THREE.MeshLambertMaterial({ color: "#000000FF" });
+
+      var v = new THREE.Vector3(0, 1, 0);
+
+      // 1
+      var sphere = new THREE.Mesh(SphereGeometry, Material);
+      sphere.position.set(0, 0.5, 0);
+
+      //3
+      var sphere1 = sphere.clone();
+      sphere1.position.set(0.2, -0.2, 0.5);
+      var sphere2 = sphere.clone();
+      sphere2.position.set(-0.2, 0.2, 0.5);
+      var sphere3 = sphere.clone();
+      sphere3.position.set(0, 0, 0.5);
+
+      //5
+      var sphere4 = sphere.clone();
+      sphere4.position.set(0.5, 0.25, 0.3);
+      var sphere5 = sphere.clone();
+      sphere5.position.set(0.5, -0.25, 0.3);
+      var sphere6 = sphere.clone();
+      sphere6.position.set(0.5, 0.25, -0.3);
+      var sphere7 = sphere.clone();
+      sphere7.position.set(0.5, -0.25, -0.3);
+      var sphere8 = sphere.clone();
+      sphere8.position.set(0.5, 0, 0);
+
+      //4
+      var sphere9 = sphere.clone();
+      sphere9.position.set(-0.5, 0.25, -0.3);
+      var sphere10 = sphere.clone();
+      sphere10.position.set(-0.5, 0.25, 0.3);
+      var sphere11 = sphere.clone();
+      sphere11.position.set(-0.5, -0.25, 0.3);
+      var sphere12 = sphere.clone();
+      sphere12.position.set(-0.5, -0.25, -0.3);
+
+      //2
+      var sphere13 = sphere.clone();
+      sphere13.position.set(0.2, -0.5, 0.3);
+      var sphere14 = sphere.clone();
+      sphere14.position.set(0.2, -0.5, 0.3);
+
+      //6
+      var sphere15 = sphere.clone();
+      sphere15.position.set(0.2, -0.5, 0.3);
+      var sphere16 = sphere.clone();
+      sphere16.position.set(0.2, -0.5, 0);
+      var sphere17 = sphere.clone();
+      sphere17.position.set(-0.2, -0.5, 0.3);
+      var sphere18 = sphere.clone();
+      sphere18.position.set(-0.2, -0.5, -0.3);
+      var sphere19 = sphere.clone();
+      sphere19.position.set(-0.2, -0.5, 0);
+      var sphere20 = sphere.clone();
+      sphere20.position.set(0.2, -0.5, -0.3);
+
+      var cube = new THREE.Mesh(CubeGeometry, CubeMaterial);
+      var parent = new THREE.Object3D();
+
+      parent.add(sphere);
+      parent.add(sphere1);
+
+      var sphereBSP = new ThreeBSP(sphere);
+
+      //3
+      var sphere1BSP = new ThreeBSP(sphere1);
+      var sphere2BSP = new ThreeBSP(sphere2);
+      var sphere3BSP = new ThreeBSP(sphere3);
+
+      //5
+      var sphere4BSP = new ThreeBSP(sphere4);
+      var sphere5BSP = new ThreeBSP(sphere5);
+      var sphere6BSP = new ThreeBSP(sphere6);
+      var sphere7BSP = new ThreeBSP(sphere7);
+      var sphere8BSP = new ThreeBSP(sphere8);
+
+      //4
+      var sphere9BSP = new ThreeBSP(sphere9);
+      var sphere10BSP = new ThreeBSP(sphere10);
+      var sphere11BSP = new ThreeBSP(sphere11);
+      var sphere12BSP = new ThreeBSP(sphere12);
+
+      //2
+      var sphere13BSP = new ThreeBSP(sphere13);
+      var sphere14BSP = new ThreeBSP(sphere14);
+      //6
+      var sphere15BSP = new ThreeBSP(sphere15);
+      var sphere16BSP = new ThreeBSP(sphere16);
+      var sphere17BSP = new ThreeBSP(sphere17);
+      var sphere18BSP = new ThreeBSP(sphere18);
+      var sphere19BSP = new ThreeBSP(sphere19);
+      var sphere20BSP = new ThreeBSP(sphere20);
+
+      var cubeBSP = new ThreeBSP(cube);
+      var resultBSP;
+      resultBSP = cubeBSP.subtract(sphereBSP);
+      resultBSP = resultBSP.subtract(sphere1BSP);
+      resultBSP = resultBSP.subtract(sphere2BSP);
+      resultBSP = resultBSP.subtract(sphere3BSP);
+      resultBSP = resultBSP.subtract(sphere4BSP);
+      resultBSP = resultBSP.subtract(sphere5BSP);
+      resultBSP = resultBSP.subtract(sphere6BSP);
+      resultBSP = resultBSP.subtract(sphere7BSP);
+      resultBSP = resultBSP.subtract(sphere8BSP);
+      resultBSP = resultBSP.subtract(sphere9BSP);
+      resultBSP = resultBSP.subtract(sphere10BSP);
+      resultBSP = resultBSP.subtract(sphere11BSP);
+      resultBSP = resultBSP.subtract(sphere12BSP);
+      resultBSP = resultBSP.subtract(sphere13BSP);
+      resultBSP = resultBSP.subtract(sphere14BSP);
+      resultBSP = resultBSP.subtract(sphere15BSP);
+      resultBSP = resultBSP.subtract(sphere16BSP);
+      resultBSP = resultBSP.subtract(sphere17BSP);
+      resultBSP = resultBSP.subtract(sphere18BSP);
+      resultBSP = resultBSP.subtract(sphere19BSP);
+      resultBSP = resultBSP.subtract(sphere20BSP);
+      var result = resultBSP.toMesh();
+      result.position.set(0, 0, 0);
+
+      // scene.add;
+      scene.add(result);
+
+      var animate = function () {
+        requestAnimationFrame(animate);
+        result.rotation.y += 0.005;
+        result.rotation.x += 0.005;
+
+        renderer.render(scene, camera);
+      };
+      animate();
+
+      camera.position.set(0, 0, 20);
+
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+      renderer.render(scene, camera);
+    </script>
+  </body>
+</html>
