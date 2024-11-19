@@ -24,11 +24,7 @@ Thumbs.db
 
 
 # Ignore specific directories
-tp cours/
-threejs-3d-form-display/tp1
-threejs-3d-form-display/tp2
-threejs-3d-form-display/tp3
-threejs-3d-form-display/tp4
-threejs-3d-form-display/img
-threejs-3d-form-display/test
+tp/
+
+
 
