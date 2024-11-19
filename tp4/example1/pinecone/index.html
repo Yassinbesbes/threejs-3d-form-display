@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Model Display</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.154.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.154.0/examples/js/loaders/GLTFLoader.js"></script>
+
+<script>
+  // Setup
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    3000
+  );
+  const renderer = new THREE.WebGLRenderer();
+  const loader = new THREE.TextureLoader();
+  const loaderfiles = new THREE.GLTFLoader();
+
+  // Load GLTF model
+  loaderfiles.load('    assets/spacefighter.glb', (gltf) => {
+    const spaceship = gltf.scene;
+    spaceship.position.set(100, 50, 0);
+    spaceship.scale.set(1000, 1000, 10000);
+    scene.add(spaceship);
+  }, undefined, (error) => {
+    console.error("An error happened while loading the model: ", error);
+  });
+
+  // Set renderer size
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Camera position
+  camera.position.setZ(50);
+  camera.position.setX(200);
+  camera.position.setY(20);
+
+  // Lights
+  const pointLight = new THREE.PointLight(0xffffff, 2, 0, 2);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+  pointLight.position.set(0, 0, 0);
+  scene.add(pointLight, ambientLight);
+
+  // Mouse controls
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.minDistance = 50;
+  controls.maxDistance = 900;
+  controls.enabled = true;
+
+  // Set background image
+  const bg = loader.load('assets/stars.jpg');
+  const bgSphere = new THREE.Mesh(
+    new THREE.BoxGeometry(2800, 2800, 2800),
+    new THREE.MeshBasicMaterial({
+      map: bg,
+      side: THREE.DoubleSide,
+    })
+  );
+  scene.add(bgSphere);
+
+  // Example planet - Sun
+  const sunTexture = loader.load('assets/sun.jpeg');
+  const sun = new THREE.Mesh(
+    new THREE.SphereGeometry(40, 32, 32),
+    new THREE.MeshBasicMaterial({ map: sunTexture })
+  );
+  scene.add(sun);
+
+  // Mercury
+  const mercuryGeo = new THREE.SphereGeometry(2, 32, 32);
+  const mercuryTexture = loader.load('assets/mercury.jpeg');
+  const mercuryMaterial = new THREE.MeshStandardMaterial({ map: mercuryTexture });
+  const mercury = new THREE.Mesh(mercuryGeo, mercuryMaterial);
+  mercury.position.set(0, 0, 60);
+  scene.add(mercury);
+
+  // Planets: Venus, Earth, Mars, etc.
+  // You can repeat similar code to add the remaining planets with textures
+  // Example for Earth:
+  const earthGeo = new THREE.SphereGeometry(4, 32, 32);
+  const earthTexture = loader.load('assets/earth.jpeg');
+  const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
+  const earth = new THREE.Mesh(earthGeo, earthMaterial);
+  earth.position.set(0, 0, 100);
+  scene.add(earth);
+
+  // Animation
+  function animate() {
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example Skybox</title>
+  </head>
+  <body>
+    <script type="module">
+      // Import Three.js package as a module
+      import * as THREE from "https://cdn.skypack.dev/three@0.136.0";
+      // Import the OrbitControls plugin
+      import { OrbitControls } from "https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls.js";
+
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(new THREE.Color(0xffffff));
+      document.body.appendChild(renderer.domElement);
+
+      var controls = new OrbitControls(camera, renderer.domElement);
+      camera.position.z = 5;
+
+      var textureURLs = [
+        "park/posx.jpg", // +X
+        "park/negx.jpg", // -X
+        "park/posy.jpg", // +Y
+        "park/negy.jpg", // -Y
+        "park/posz.jpg", // +Z
+        "park/negz.jpg"  // -Z
+      ];
+
+      var loader = new THREE.CubeTextureLoader();
+      var cubeTexture = loader.load(
+        textureURLs,
+        onLoad,
+        undefined,
+        onError
+      );
+
+      function onLoad(cubeTexture) {
+        cubeTexture.mapping = THREE.CubeRefractionMapping;
+        var material = new THREE.MeshBasicMaterial({
+          color: 0x00ff00,
+          envMap: cubeTexture,
+          refractionRatio: 0.9,
+          Reflect:1
+        });
+        var geometry = new THREE.BoxGeometry();
+        var cube = new THREE.Mesh(geometry, material);
+        cube.position.x = -1;
+        cube.position.y = 1;
+        scene.background = cubeTexture;
+        var animate = function () {
+          requestAnimationFrame(animate);
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+          controls.update();
+          renderer.render(scene, camera);
+        };
+        animate();
+      }
+
+      function onError(error) {
+        console.log("An error occurred when loading the texture");
+      }
+    </script>
+  </body>
+</html>

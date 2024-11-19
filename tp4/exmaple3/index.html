@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js Pyramid with Texture</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const loader = new THREE.TextureLoader();
+      loader.load(
+        "images.jpg",
+        function onLoad(texture) {
+          var pyramidUVs = new Float32Array([
+            0,
+            0,
+            0,
+            1,
+            1,
+            1, // uv du premier triangle de la base.
+            0,
+            0,
+            1,
+            1,
+            1,
+            0, // uv du deuxième triangle de la base.
+            0,
+            0,
+            1,
+            0,
+            0.5,
+            1, // uv face avant.
+            1,
+            0,
+            0,
+            0,
+            0.5,
+            1, // uv face droite.
+            0,
+            0,
+            1,
+            0,
+            0.5,
+            1, // uv face arrière.
+            1,
+            0,
+            0,
+            0,
+            0.5,
+            1, // uv face gauche.
+          ]);
+
+          const pyramidGeom = new THREE.ConeGeometry(1, 1, 4);
+          pyramidGeom.setAttribute(
+            "uv",
+            new THREE.BufferAttribute(pyramidUVs, 2)
+          );
+
+          const pyramidMaterialArray = [
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+          ];
+
+          const pyramid = new THREE.Mesh(pyramidGeom, pyramidMaterialArray);
+          scene.add(pyramid);
+
+          camera.position.z = 3;
+
+          function animate() {
+            requestAnimationFrame(animate);
+            pyramid.rotation.y += 0.01;
+            pyramid.rotation.x += 0.01;
+            renderer.render(scene, camera);
+          }
+          animate();
+        },
+        undefined,
+        function onError(error) {
+          console.log("An error happened when loading the texture");
+        }
+      );
+    </script>
+  </body>
+</html>

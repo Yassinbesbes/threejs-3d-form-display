@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js Cube with Texture</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include Three.js from a CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+      // Basic Three.js setup
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      let cube;
+
+      const loader = new THREE.TextureLoader();
+      loader.load(
+        "cat.jpg",
+        function onLoad(texture) {
+          const material = new THREE.MeshBasicMaterial({ map: texture });
+          const geometry = new THREE.BoxGeometry(2, 2, 2);
+
+          //texture
+          texture.repeat.set(2, 2);
+          texture.wrapS = THREE.MirroredRepeatWrapping;
+          texture.wrapT = THREE.MirroredRepeatWrapping;
+
+          cube = new THREE.Mesh(geometry, material);
+          cube.position.y = 1;
+          scene.add(cube);
+          animate();
+        },
+
+        undefined,
+        function onError(error) {
+          console.log("An error happened when loading texture");
+        }
+      );
+
+      undefined, (camera.position.z = 5);
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        cube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+      }
+    </script>
+  </body>
+</html>
