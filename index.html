@@ -61,7 +61,7 @@
           // Once the cube texture is loaded, set it as the background of the scene
           scene.background = cubeTexture;
         },
-        undefined, // optional: you can handle progress with this parameter
+        undefined,
         function (error) {
           console.error("Error loading background texture:", error);
         }
@@ -69,16 +69,16 @@
 
       // Load sun texture
       textureLoader.load(
-        "../assets/sun.jpeg",
+        "./assets/sun.jpeg",
         function (sunTexture) {
           // Create Sun mesh
           const sun = new THREE.Mesh(
             new THREE.SphereGeometry(40, 32, 32),
             new THREE.MeshStandardMaterial({
               map: sunTexture,
-              emissive: 0xffff00, // Add a slight glow effect
+              emissive: 0xffff00,
               emissiveMap: sunTexture,
-              emissiveIntensity: 0.5, // Subtle emission
+              emissiveIntensity: 0.5,
             })
           );
 
@@ -97,7 +97,6 @@
         }
       );
 
-      // If you want the optional pulsing effect, add this to your animation loop
       function animateSun(sun, time) {
         if (sun) {
           sun.userData.animationTime += 0.01;
@@ -108,7 +107,7 @@
 
       // Load Mercury texture
       textureLoader.load(
-        "../assets/mercury.jpeg", // Replace with the correct path
+        "./assets/mercury.jpg",
         function (mercuryTexture) {
           // Create Mercury mesh
           const mercury = new THREE.Mesh(
@@ -172,7 +171,7 @@
 
       // Load Earth texture
       textureLoader.load(
-        "../assets/earth.jpeg",
+        "./assets/earth.jpeg",
         function (earthTexture) {
           // Create Earth mesh
           const earth = new THREE.Mesh(
@@ -198,7 +197,7 @@
 
           // Load Moon texture
           textureLoader.load(
-            "../assets/moon.jpg",
+            "./assets/moon.jpg",
             function (moonTexture) {
               // Create Moon mesh
               const moon = new THREE.Mesh(
@@ -242,7 +241,7 @@
 
       // Load Mars texture
       textureLoader.load(
-        "../assets/mars.jpeg",
+        "./assets/mars.jpeg",
         function (marsTexture) {
           // Create Mars mesh
           const mars = new THREE.Mesh(
@@ -273,7 +272,7 @@
 
       // Load Jupiter texture
       textureLoader.load(
-        "../assets/jupiter.jpeg",
+        "./assets/jupiter.jpeg",
         function (jupiterTexture) {
           // Create Jupiter mesh
           const jupiter = new THREE.Mesh(
@@ -305,7 +304,7 @@
 
       // Load Saturn texture
       textureLoader.load(
-        "../assets/saturn.jpeg",
+        "./assets/saturn.jpeg",
         function (saturnTexture) {
           // Create Saturn mesh
           const saturn = new THREE.Mesh(
@@ -330,7 +329,7 @@
 
           // Load Saturn ring texture
           textureLoader.load(
-            "../assets/saturn-ring.png",
+            "./assets/saturn-ring.png",
             function (saturnRingTexture) {
               // Create Saturn ring
               const saturnRing = new THREE.Mesh(
@@ -360,7 +359,7 @@
 
       // Load Uranus texture
       textureLoader.load(
-        "../assets/uranus.jpeg",
+        "./assets/uranus.jpeg",
         function (uranusTexture) {
           const uranus = new THREE.Mesh(
             new THREE.SphereGeometry(6, 32, 32),
@@ -391,7 +390,7 @@
 
       // Load Neptune texture
       textureLoader.load(
-        "../assets/neptune.jpeg",
+        "./assets/neptune.jpeg",
         function (neptuneTexture) {
           const neptune = new THREE.Mesh(
             new THREE.SphereGeometry(6, 32, 32),
@@ -424,7 +423,7 @@
 
       // Load Pluto texture
       textureLoader.load(
-        "../assets/pluto.png",
+        "./assets/pluto.png",
         function (plutoTexture) {
           const pluto = new THREE.Mesh(
             new THREE.SphereGeometry(2, 32, 32),
@@ -478,9 +477,6 @@
           console.error("An error occurred loading the model:", error);
         }
       );
-
-      // Handle window resize
-      window.addEventListener("resize", onWindowResize, false);
 
       function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
