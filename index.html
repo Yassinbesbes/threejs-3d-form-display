@@ -66,30 +66,35 @@
           console.error("Error loading background texture:", error);
         }
       );
-
+      let sun;
       // Load sun texture
       textureLoader.load(
         "./assets/sun.jpeg",
         function (sunTexture) {
-          // Create Sun mesh
-          const sun = new THREE.Mesh(
-            new THREE.SphereGeometry(40, 32, 32),
-            new THREE.MeshStandardMaterial({
-              map: sunTexture,
-              emissive: 0xffff00,
-              emissiveMap: sunTexture,
-              emissiveIntensity: 0.5,
-            })
+          textureLoader.load(
+            "./assets/sun.jpeg",
+            function (bumpMap) {
+              // Create Sun mesh
+              sun = new THREE.Mesh(
+                new THREE.SphereGeometry(40, 32, 32),
+                new THREE.MeshStandardMaterial({
+                  map: sunTexture,
+                  emissive: 0xffff00,
+                  emissiveMap: sunTexture,
+                  emissiveIntensity: 0.5,
+                  bumpMap: bumpMap,
+                  bumpScale: 0.05,
+                })
+              );
+
+              // Set initial Sun properties
+              scene.add(sun);
+            },
+            undefined,
+            function (error) {
+              console.error("Error loading bump map for Sun:", error);
+            }
           );
-
-          // Add slight rotation to simulate sun's surface movement
-          sun.rotation.y = Math.random() * Math.PI * 2;
-
-          // Optional: Add a subtle pulsing animation
-          sun.userData.originalScale = sun.scale.clone();
-          sun.userData.animationTime = 0;
-
-          scene.add(sun); // Add Sun to the scene
         },
         undefined,
         function (error) {
@@ -97,41 +102,73 @@
         }
       );
 
-      function animateSun(sun, time) {
-        if (sun) {
-          sun.userData.animationTime += 0.01;
-          const pulse = Math.sin(sun.userData.animationTime) * 0.05 + 1;
-          sun.scale.set(pulse, pulse, pulse);
-        }
-      }
-
       // Load Mercury texture
       textureLoader.load(
-        "./assets/mercury.jpg",
+        "./assets/mercury.jpg", // Main texture for Mercury
         function (mercuryTexture) {
-          // Create Mercury mesh
-          const mercury = new THREE.Mesh(
-            new THREE.SphereGeometry(2, 32, 32),
-            new THREE.MeshStandardMaterial({ map: mercuryTexture })
-          );
-          mercury.position.set(0, 0, 60);
-          scene.add(mercury);
+          // Load displacement map
+          textureLoader.load(
+            "./assets/mercury.jpg", // Displacement map texture
+            function (displacementMap) {
+              // Create Mercury mesh
+              const mercury = new THREE.Mesh(
+                new THREE.SphereGeometry(2, 32, 32),
+                new THREE.MeshStandardMaterial({
+                  map: mercuryTexture,
+                  displacementMap: displacementMap,
+                  displacementScale: 0.1,
+                })
+              );
+              scene.add(mercury);
 
-          // Mercury orbit path visualization
-          const mercuryPath = new THREE.RingGeometry(60, 60.5, 100);
-          const mercuryPathMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            opacity: 0.5,
-            transparent: true,
-            side: THREE.DoubleSide,
-          });
-          const mercuryPathMesh = new THREE.Mesh(
-            mercuryPath,
-            mercuryPathMaterial
+              // Mercury's orbit radius
+              const orbitRadius = 60;
+
+              // Create the orbit ring
+              const mercuryPath = new THREE.RingGeometry(
+                orbitRadius,
+                orbitRadius + 0.5,
+                100
+              );
+              const mercuryPathMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                opacity: 0.5,
+                transparent: true,
+                side: THREE.DoubleSide,
+              });
+              const mercuryPathMesh = new THREE.Mesh(
+                mercuryPath,
+                mercuryPathMaterial
+              );
+              mercuryPathMesh.rotateX(Math.PI / 2);
+              scene.add(mercuryPathMesh);
+
+              // Variable to track the angle of Mercury along its orbit
+              let angle = 0;
+
+              // Animation function
+              function animate() {
+                requestAnimationFrame(animate);
+
+                // Update Mercury's position along the circular orbit
+                angle += 0.01; // Adjust speed of movement
+                mercury.position.x = orbitRadius * Math.cos(angle);
+                mercury.position.z = orbitRadius * Math.sin(angle);
+
+                // Rotate Mercury to face its direction of motion
+                mercury.rotation.y = angle + Math.PI / 2;
+
+                controls.update();
+                renderer.render(scene, camera);
+              }
+
+              animate();
+            },
+            undefined,
+            function (error) {
+              console.error("Error loading Mercury displacement map:", error);
+            }
           );
-          mercuryPathMesh.rotateX(Math.PI / 2);
-          mercuryPathMesh.rotateY(-0.15);
-          scene.add(mercuryPathMesh);
         },
         undefined,
         function (error) {
@@ -141,27 +178,46 @@
 
       // Load Venus texture
       textureLoader.load(
-        "../assets/venus.jpeg", // Replace with the correct path
+        "../assets/venus.jpeg", // Main texture for Venus
         function (venusTexture) {
-          // Create Venus mesh
-          const venus = new THREE.Mesh(
-            new THREE.SphereGeometry(4, 32, 32),
-            new THREE.MeshStandardMaterial({ map: venusTexture })
-          );
-          venus.position.set(0, 0, 80); // Adjust position as needed
-          scene.add(venus);
+          // Load displacement map (adjust path if needed)
+          textureLoader.load(
+            "../assets/venus.jpeg", // Displacement map texture
+            function (displacementMap) {
+              // Create Venus mesh with displacement map
+              const venus = new THREE.Mesh(
+                new THREE.SphereGeometry(4, 32, 32),
+                new THREE.MeshStandardMaterial({
+                  map: venusTexture,
+                  displacementMap: displacementMap, // Add displacement map
+                  displacementScale: 0.2, // Adjust displacement intensity
+                })
+              );
+              venus.position.set(0, 0, 80); // Adjust position as needed
+              scene.add(venus);
+              let angle = 0;
 
-          // Venus orbit path visualization
-          const venusPath = new THREE.RingGeometry(80, 80.5, 100);
-          const venusPathMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            opacity: 0.5,
-            transparent: true,
-            side: THREE.DoubleSide,
-          });
-          const venusPathMesh = new THREE.Mesh(venusPath, venusPathMaterial);
-          venusPathMesh.rotateX(Math.PI / 2);
-          scene.add(venusPathMesh); // Add orbit path to the scene
+              // Venus orbit path visualization
+              const venusPath = new THREE.RingGeometry(80, 80.5, 100);
+              const venusPathMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                opacity: 0.5,
+                transparent: true,
+                side: THREE.DoubleSide,
+              });
+              const venusPathMesh = new THREE.Mesh(
+                venusPath,
+                venusPathMaterial
+              );
+              venusPathMesh.rotateX(Math.PI / 2);
+              scene.add(venusPathMesh); // Add orbit path to the scene
+            },
+
+            undefined,
+            function (error) {
+              console.error("Error loading Venus displacement map:", error);
+            }
+          );
         },
         undefined,
         function (error) {
@@ -170,66 +226,131 @@
       );
 
       // Load Earth texture
+      // Load Earth texture
       textureLoader.load(
         "./assets/earth.jpeg",
         function (earthTexture) {
-          // Create Earth mesh
-          const earth = new THREE.Mesh(
-            new THREE.SphereGeometry(4, 32, 32),
-            new THREE.MeshStandardMaterial({ map: earthTexture })
-          );
-          earth.position.set(0, 0, 100);
-          earth.rotateX(0.5);
-          earth.rotateY(-0.1);
-          scene.add(earth);
-
-          // Earth orbit path visualization
-          const earthPath = new THREE.RingGeometry(100, 100.5, 100);
-          const earthPathMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            opacity: 0.5,
-            transparent: true,
-            side: THREE.DoubleSide,
-          });
-          const earthPathMesh = new THREE.Mesh(earthPath, earthPathMaterial);
-          earthPathMesh.rotateX(Math.PI / 2);
-          scene.add(earthPathMesh);
-
-          // Load Moon texture
+          // Load Earth normal map
           textureLoader.load(
-            "./assets/moon.jpg",
-            function (moonTexture) {
-              // Create Moon mesh
-              const moon = new THREE.Mesh(
-                new THREE.SphereGeometry(1, 32, 32),
-                new THREE.MeshStandardMaterial({ map: moonTexture })
+            "./assets/earth.jpeg", // Earth normal map texture
+            function (earthNormalMap) {
+              // Create Earth mesh with normal map
+              const earth = new THREE.Mesh(
+                new THREE.SphereGeometry(4, 32, 32),
+                new THREE.MeshStandardMaterial({
+                  map: earthTexture,
+                  normalMap: earthNormalMap, // Add normal map for Earth surface
+                })
               );
-              moon.position.set(0, 0, 110);
-              scene.add(moon);
+              earth.position.set(0, 0, 100); // Initial position of Earth
+              earth.rotateX(0.5);
+              earth.rotateY(-0.1);
+              scene.add(earth);
 
-              // Moon orbit path visualization
-              const moonOrbitRing = new THREE.RingGeometry(10, 10.5, 100);
-              const moonOrbitMaterial = new THREE.MeshBasicMaterial({
+              // Earth orbit path visualization
+              const earthPath = new THREE.RingGeometry(100, 100.5, 100);
+              const earthPathMaterial = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
                 opacity: 0.5,
                 transparent: true,
                 side: THREE.DoubleSide,
               });
-              const moonOrbitMesh = new THREE.Mesh(
-                moonOrbitRing,
-                moonOrbitMaterial
+              const earthPathMesh = new THREE.Mesh(
+                earthPath,
+                earthPathMaterial
               );
-              moonOrbitMesh.rotateX(Math.PI / 2);
-              moonOrbitMesh.position.set(
-                earth.position.x,
-                earth.position.y,
-                earth.position.z
+              earthPathMesh.rotateX(Math.PI / 2); // Align the path to the horizontal plane
+              scene.add(earthPathMesh);
+
+              // Load Moon texture
+              textureLoader.load(
+                "./assets/moon.jpg",
+                function (moonTexture) {
+                  // Load Moon normal map
+                  textureLoader.load(
+                    "./assets/moon.jpg", // Moon normal map texture
+                    function (moonNormalMap) {
+                      // Create Moon mesh with normal map
+                      const moon = new THREE.Mesh(
+                        new THREE.SphereGeometry(1, 32, 32),
+                        new THREE.MeshStandardMaterial({
+                          map: moonTexture,
+                          normalMap: moonNormalMap, // Add normal map for Moon surface
+                        })
+                      );
+                      moon.position.set(0, 0, 110); // Initial position of the Moon
+                      scene.add(moon);
+
+                      // Create the Moon's orbital ring (this ring moves with the Earth)
+                      const moonOrbitRing = new THREE.RingGeometry(
+                        10,
+                        10.5,
+                        100
+                      );
+                      const moonOrbitMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xffffff,
+                        opacity: 0.5,
+                        transparent: true,
+                        side: THREE.DoubleSide,
+                      });
+                      const moonOrbitMesh = new THREE.Mesh(
+                        moonOrbitRing,
+                        moonOrbitMaterial
+                      );
+                      moonOrbitMesh.rotateX(Math.PI / 2); // Align the path to the horizontal plane
+                      scene.add(moonOrbitMesh);
+
+                      // Animation loop
+                      const animate = function () {
+                        requestAnimationFrame(animate);
+
+                        // Rotate Earth around its own orbit (around the origin or a central point)
+                        const earthOrbitSpeed = 0.001; // Speed of Earth's orbit around the sun
+                        const earthOrbitAngle =
+                          Date.now() * earthOrbitSpeed * 0.09;
+                        earth.position.x = 100 * Math.cos(earthOrbitAngle); // Orbit radius is 100
+                        earth.position.z = 100 * Math.sin(earthOrbitAngle);
+
+                        // Rotate Moon around Earth (Orbit the Earth)
+                        const moonOrbitRadius = 10; // Radius of the Moon's orbit around Earth
+                        const moonOrbitSpeed = 0.1; // Speed of the Moon's orbit
+                        const moonAngle = Date.now() * moonOrbitSpeed * 0.01; // Angle based on time
+                        moon.position.x =
+                          earth.position.x +
+                          moonOrbitRadius * Math.cos(moonAngle);
+                        moon.position.z =
+                          earth.position.z +
+                          moonOrbitRadius * Math.sin(moonAngle);
+
+                        // Update the position of the Moon's orbital ring to follow Earth (fixed with Earth orbit)
+                        moonOrbitMesh.position.set(
+                          earth.position.x,
+                          earth.position.y,
+                          earth.position.z
+                        );
+
+                        // Render the scene
+                        renderer.render(scene, camera);
+                      };
+
+                      // Start animation
+                      animate();
+                    },
+                    undefined,
+                    function (error) {
+                      console.error("Error loading Moon normal map:", error);
+                    }
+                  );
+                },
+                undefined,
+                function (error) {
+                  console.error("Error loading Moon texture:", error);
+                }
               );
-              scene.add(moonOrbitMesh);
             },
             undefined,
             function (error) {
-              console.error("Error loading Moon texture:", error);
+              console.error("Error loading Earth normal map:", error);
             }
           );
         },
@@ -248,8 +369,8 @@
             new THREE.SphereGeometry(3, 32, 32),
             new THREE.MeshStandardMaterial({ map: marsTexture })
           );
-          mars.position.set(0, 0, 120);
-          mars.rotateX(0.5);
+          mars.position.set(0, 0, 120); // Initial position of Mars
+          mars.rotateX(0.5); // Initial rotation of Mars
           scene.add(mars);
 
           // Mars orbit path visualization
@@ -261,8 +382,28 @@
             side: THREE.DoubleSide,
           });
           const marsPathMesh = new THREE.Mesh(marsPath, marsPathMaterial);
-          marsPathMesh.rotateX(Math.PI / 2);
+          marsPathMesh.rotateX(Math.PI / 2); // Align the path to the horizontal plane
           scene.add(marsPathMesh);
+
+          // Animation loop
+          const animate = function () {
+            requestAnimationFrame(animate);
+
+            // Rotate Mars around its own orbit (around the origin or central point)
+            const marsOrbitSpeed = 0.001; // Speed of Mars' orbit around the Sun
+            const marsOrbitAngle = Date.now() * marsOrbitSpeed * 0.05;
+            mars.position.x = 120 * Math.cos(marsOrbitAngle); // Orbit radius is 120
+            mars.position.z = 120 * Math.sin(marsOrbitAngle);
+
+            // Rotate the Mars orbital ring (rotate based on Mars' orbit angle to keep it aligned)
+            marsPathMesh.rotation.z = marsOrbitAngle; // Rotate the ring in sync with Mars' orbit
+
+            // Render the scene
+            renderer.render(scene, camera);
+          };
+
+          // Start animation
+          animate();
         },
         undefined,
         function (error) {
@@ -279,9 +420,10 @@
             new THREE.SphereGeometry(10, 32, 32),
             new THREE.MeshStandardMaterial({ map: jupiterTexture })
           );
-          jupiter.position.set(0, 0, 160);
+          jupiter.position.set(0, 0, 160); // Initial position of Jupiter
           scene.add(jupiter);
 
+          // Jupiter orbit path visualization
           const jupiterPath = new THREE.RingGeometry(160, 160.5, 100);
           const jupiterPathMaterial = new THREE.MeshBasicMaterial({
             color: 0xffffff,
@@ -293,8 +435,28 @@
             jupiterPath,
             jupiterPathMaterial
           );
-          jupiterPathMesh.rotateX(Math.PI / 2);
+          jupiterPathMesh.rotateX(Math.PI / 2); // Align the path to the horizontal plane
           scene.add(jupiterPathMesh);
+
+          // Animation loop
+          const animate = function () {
+            requestAnimationFrame(animate);
+
+            // Rotate Jupiter around its own orbit (around the origin or a central point)
+            const jupiterOrbitSpeed = 0.0005; // Speed of Jupiter's orbit around the Sun
+            const jupiterOrbitAngle = Date.now() * jupiterOrbitSpeed * 0.8;
+            jupiter.position.x = 160 * Math.cos(jupiterOrbitAngle); // Orbit radius is 160
+            jupiter.position.z = 160 * Math.sin(jupiterOrbitAngle);
+
+            // Rotate the Jupiter orbital ring (rotate based on Jupiter's orbit angle to keep it aligned)
+            jupiterPathMesh.rotation.z = jupiterOrbitAngle; // Rotate the ring in sync with Jupiter's orbit
+
+            // Render the scene
+            renderer.render(scene, camera);
+          };
+
+          // Start animation
+          animate();
         },
         undefined,
         function (error) {
@@ -302,6 +464,7 @@
         }
       );
 
+      // Load Saturn texture
       // Load Saturn texture
       textureLoader.load(
         "./assets/saturn.jpeg",
@@ -311,8 +474,8 @@
             new THREE.SphereGeometry(9.5, 32, 32),
             new THREE.MeshStandardMaterial({ map: saturnTexture })
           );
-          saturn.position.set(0, 0, 200);
-          saturn.rotateX(0.55);
+          saturn.position.set(0, 0, 200); // Initial position of Saturn
+          saturn.rotateX(0.55); // Slight rotation for appearance
           scene.add(saturn);
 
           // Saturn orbit path
@@ -324,7 +487,7 @@
             side: THREE.DoubleSide,
           });
           const saturnPathMesh = new THREE.Mesh(saturnPath, saturnPathMaterial);
-          saturnPathMesh.rotateX(Math.PI / 2);
+          saturnPathMesh.rotateX(Math.PI / 2); // Align the path to the horizontal plane
           scene.add(saturnPathMesh);
 
           // Load Saturn ring texture
@@ -341,9 +504,36 @@
                   opacity: 0.8,
                 })
               );
-              saturnRing.rotateX(Math.PI / 4);
-              saturnRing.position.set(0, 0, 200);
+              saturnRing.rotateX(Math.PI / 4); // Initial rotation of the ring
+              saturnRing.position.set(0, 0, 200); // Set initial position to Saturn's position
               scene.add(saturnRing);
+
+              // Animation loop
+              const animate = function () {
+                requestAnimationFrame(animate);
+
+                // Rotate Saturn around its own orbit (around the Sun)
+                const saturnOrbitSpeed = 0.0003; // Speed of Saturn's orbit
+                const saturnOrbitAngle = Date.now() * saturnOrbitSpeed * 0.4;
+                saturn.position.x = 200 * Math.cos(saturnOrbitAngle); // Orbit radius is 200
+                saturn.position.z = 200 * Math.sin(saturnOrbitAngle);
+
+                // Update the position of Saturn's ring to follow Saturn
+                saturnRing.position.set(
+                  saturn.position.x,
+                  saturn.position.y,
+                  saturn.position.z
+                );
+
+                // Rotate the Saturn ring based on Saturn's orbit angle to keep it aligned
+                saturnRing.rotation.z = saturnOrbitAngle;
+
+                // Render the scene
+                renderer.render(scene, camera);
+              };
+
+              // Start animation
+              animate();
             },
             undefined,
             function (error) {
@@ -361,12 +551,13 @@
       textureLoader.load(
         "./assets/uranus.jpeg",
         function (uranusTexture) {
+          // Create Uranus mesh
           const uranus = new THREE.Mesh(
             new THREE.SphereGeometry(6, 32, 32),
             new THREE.MeshStandardMaterial({ map: uranusTexture })
           );
-          uranus.position.set(0, 0, 240);
-          uranus.rotateX(1);
+          uranus.position.set(0, 0, 240); // Initial position of Uranus
+          uranus.rotateX(1); // Rotate Uranus slightly for visual effect
           scene.add(uranus);
 
           // Uranus orbit path
@@ -381,6 +572,28 @@
           uranusPathMesh.rotateX(Math.PI / 2);
           uranusPathMesh.rotateY(Math.sin(0.1) * -0.5);
           scene.add(uranusPathMesh);
+
+          // Animate Uranus around its orbit path
+          const animate = function () {
+            requestAnimationFrame(animate);
+
+            // Calculate the current angle for Uranus's orbit (rotating around the center)
+            const orbitSpeed = 0.001; // Adjust speed of Uranus orbit
+            const angle = Date.now() * orbitSpeed * 0.15; // Use time to drive the angle
+
+            // Update Uranus's position based on its angle on the orbit
+            uranus.position.x = 240 * Math.cos(angle); // Orbit radius is 240
+            uranus.position.z = 240 * Math.sin(angle);
+
+            // Rotate the Uranus ring to follow the motion
+            uranusPathMesh.rotation.z = angle; // Rotate the ring as Uranus orbits
+
+            // Render the scene
+            renderer.render(scene, camera);
+          };
+
+          // Start the animation loop
+          animate();
         },
         undefined,
         function (error) {
@@ -392,12 +605,13 @@
       textureLoader.load(
         "./assets/neptune.jpeg",
         function (neptuneTexture) {
+          // Create Neptune mesh
           const neptune = new THREE.Mesh(
             new THREE.SphereGeometry(6, 32, 32),
             new THREE.MeshStandardMaterial({ map: neptuneTexture })
           );
-          neptune.position.set(0, 0, 280);
-          neptune.rotateX(0.6);
+          neptune.position.set(0, 0, 280); // Initial position of Neptune
+          neptune.rotateX(0.6); // Rotate Neptune slightly for visual effect
           scene.add(neptune);
 
           // Neptune orbit path
@@ -412,8 +626,30 @@
             neptunePath,
             neptunePathMaterial
           );
-          neptunePathMesh.rotateX(Math.PI / 2);
+          neptunePathMesh.rotateX(Math.PI / 2); // Align the ring to the X-axis
           scene.add(neptunePathMesh);
+
+          // Animate Neptune around its orbit path
+          const animate = function () {
+            requestAnimationFrame(animate);
+
+            // Calculate the current angle for Neptune's orbit (rotating around the center)
+            const orbitSpeed = 0.0008; // Adjust speed of Neptune's orbit
+            const angle = Date.now() * orbitSpeed * 0.6; // Use time to drive the angle
+
+            // Update Neptune's position based on its angle on the orbit
+            neptune.position.x = 280 * Math.cos(angle); // Orbit radius is 280
+            neptune.position.z = 280 * Math.sin(angle);
+
+            // Rotate the Neptune ring to follow the motion
+            neptunePathMesh.rotation.z = angle; // Rotate the ring as Neptune orbits
+
+            // Render the scene
+            renderer.render(scene, camera);
+          };
+
+          // Start the animation loop
+          animate();
         },
         undefined,
         function (error) {
@@ -422,14 +658,16 @@
       );
 
       // Load Pluto texture
+      // Load Pluto texture
       textureLoader.load(
         "./assets/pluto.png",
         function (plutoTexture) {
+          // Create Pluto mesh
           const pluto = new THREE.Mesh(
             new THREE.SphereGeometry(2, 32, 32),
             new THREE.MeshStandardMaterial({ map: plutoTexture })
           );
-          pluto.position.set(0, 0, 340);
+          pluto.position.set(0, 0, 340); // Initial position of Pluto
           scene.add(pluto);
 
           // Pluto orbit path
@@ -441,9 +679,29 @@
             side: THREE.DoubleSide,
           });
           const plutoPathMesh = new THREE.Mesh(plutoPath, plutoPathMaterial);
-          plutoPathMesh.rotateX(Math.PI / 2);
-          plutoPathMesh.rotateY(Math.sin(0.1) * 0.55);
+          plutoPathMesh.rotateX(Math.PI / 2); // Align the ring to the X-axis
           scene.add(plutoPathMesh);
+
+          // Animate Pluto around its orbit path
+          const animate = function () {
+            requestAnimationFrame(animate);
+
+            const orbitSpeed = 0.0006; // Adjust speed of Pluto's orbit
+            const angle = Date.now() * orbitSpeed * 0.09; // Use time to drive the angle
+
+            // Update Pluto's position based on its angle on the orbit
+            pluto.position.x = 340 * Math.cos(angle); // Orbit radius is 340
+            pluto.position.z = 340 * Math.sin(angle);
+
+            // Rotate the Pluto ring to follow the motion
+            plutoPathMesh.rotation.z = angle; // Rotate the ring as Pluto orbits
+
+            // Render the scene
+            renderer.render(scene, camera);
+          };
+
+          // Start the animation loop
+          animate();
         },
         undefined,
         function (error) {
@@ -487,6 +745,8 @@
       // Animation loop
       function animate() {
         requestAnimationFrame(animate);
+        sun.rotation.y += 0.01; // Simple rotation
+
         controls.update();
         renderer.render(scene, camera);
       }
